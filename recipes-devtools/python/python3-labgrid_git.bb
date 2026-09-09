@@ -3,9 +3,9 @@ require python3-labgrid.inc
 SRC_URI += "git://github.com/labgrid-project/labgrid.git;protocol=https;branch=${SRCBRANCH}"
 
 SRCBRANCH = "master"
-SRCREV = "b94e1720694aedaf3531085522729d7e751d517a"
+SRCREV = "14113c308e2f82195c39ad8b175aca093a1506e7"
 
-PV = "25.0+git"
+PV = "26.0+git"
 
 LABGRID_USE_DEVEL_VERSION[doc] = "Global switch to enable labgrid development (git) version"
 LABGRID_USE_DEVEL_VERSION ??= "-1"
