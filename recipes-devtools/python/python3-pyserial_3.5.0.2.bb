@@ -1,13 +1,32 @@
+# FIXME: the LIC_FILES_CHKSUM values have been updated by 'devtool upgrade'.
+# The following is the difference between the old and the new license text.
+# Please update the LICENSE value if needed, and summarize the changes in
+# the commit message via 'License-Update:' tag.
+# (example: 'License-Update: copyright years updated.')
+#
+# The changes:
+#
+# --- LICENSE.txt
+# +++ LICENSE.txt
+# @@ -1,4 +1,4 @@
+# -Copyright (c) 2001-2016 Chris Liechti <cliechti@gmx.net>
+# +Copyright (c) 2001-2020 Chris Liechti <cliechti@gmx.net>
+#  All Rights Reserved.
+#  
+#  Redistribution and use in source and binary forms, with or without
+# 
+#
+
 SUMMARY = "Serial Port Support for Python"
 LICENSE = "BSD-3-Clause"
-LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=d476d94926db6e0008a5b3860d1f5c0d"
+LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=520e45e59fc2cf94aa53850f46b86436"
 
 inherit pypi setuptools3
 
 PYPI_PACKAGE = "pyserial-labgrid"
 PYPI_PACKAGE_SDIST = "pyserial-labgrid"
 
-SRC_URI[sha256sum] = "be4229a6b704dfd2b84362c3c10348578cc84b8e08556900aa7b3116ebf2f8c6"
+SRC_URI[sha256sum] = "98f826609795e92157ba2c2e9d8e98c6cec2f399de353f76dd0436536f5c52ab"
 
 do_install:append() {
     rm -f ${D}${bindir}/miniterm.py
