@@ -11,3 +11,6 @@ PACKAGECONFIG[web] = "--disable-webless,--enable-webless,"
 SRC_URI = "https://sourceforge.net/projects/sispmctl/files/sispmctl/sispmctl-${PV}/sispmctl-${PV}.tar.gz"
 
 SRC_URI[sha256sum] = "e757863a4838da6e1ca72a57adc5aca6fc47ffbddc72a69052d8abd743d57082"
+
+UPSTREAM_CHECK_URI = "https://sourceforge.net/projects/sispmctl/files/sispmctl/"
+UPSTREAM_CHECK_REGEX = "sispmctl-(?P<pver>\d+(\.\d+)+)"
