@@ -8,7 +8,7 @@ on:
 jobs:
   auto-upgrade:
     name: Auto upgrade
-    runs-on: [self-hosted, forrest, build]
+    runs-on: ubuntu-22.04
     env:
       GH_TOKEN: ${{ secrets.AUH_PR_TOKEN }}
       GIT_AUTHOR_NAME: "auh[bot]"
