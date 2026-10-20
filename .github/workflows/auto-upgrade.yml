@@ -1,0 +1,61 @@
+name: auto upgrade
+
+on:
+  schedule:
+    - cron: '0 4 * * 1'
+  workflow_dispatch: {}
+
+jobs:
+  auto-upgrade:
+    name: Auto upgrade
+    runs-on: [self-hosted, forrest, build]
+    env:
+      GH_TOKEN: ${{ secrets.AUH_PR_TOKEN }}
+      GIT_AUTHOR_NAME: "Upgrade Helper"
+      GIT_AUTHOR_EMAIL: "noreply@labgrid.org"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          path: meta-labgrid
+          token: ${{ secrets.AUH_PR_TOKEN }}
+      - name: Check for an open AUH pull request
+        id: pr
+        run: echo "open=$(gh pr list -R "$GITHUB_REPOSITORY" --head auh --state open --json number --jq length)" >> "$GITHUB_OUTPUT"
+      - name: Set up build
+        if: steps.pr.outputs.open == '0'
+        uses: ./meta-labgrid/.github/actions/setup-build
+      - name: Run auto upgrade helper
+        if: steps.pr.outputs.open == '0'
+        run: |
+          git clone --depth 1 https://git.yoctoproject.org/auto-upgrade-helper
+          source openembedded-core/oe-init-build-env build
+          git config --global user.name "$GIT_AUTHOR_NAME"
+          git config --global user.email "$GIT_AUTHOR_EMAIL"
+          echo "RECIPE_MAINTAINER = \"$GIT_AUTHOR_NAME <$GIT_AUTHOR_EMAIL>\"" >> conf/local.conf
+          cat > ../upgrade-helper.conf <<EOF
+          [settings]
+          from = $GIT_AUTHOR_EMAIL
+          EOF
+          ../auto-upgrade-helper/upgrade-helper.py -s -d 5 -c ../upgrade-helper.conf \
+            --layer-names meta-labgrid --layer-dir "$GITHUB_WORKSPACE/meta-labgrid" all
+      - name: Push and open pull request
+        if: steps.pr.outputs.open == '0'
+        run: |
+          fails=$(ls build/upgrade-helper/*/*/failed)
+          cd meta-labgrid
+          git rebase -q --exec 'git commit -q --amend --no-edit -s' origin/master
+          for pn in $fails; do
+            git commit --allow-empty -F - <<EOF
+          DO NOT MERGE: $pn: upgrade needs manual fixing
+
+          $(cat ../build/upgrade-helper/*/*/failed/$pn/email_summary)
+          EOF
+          done
+          if [ -z "$(git log origin/master..HEAD)" ]; then echo "No upgrades, nothing to do."; exit 0; fi
+          { echo '```'; cat ../build/upgrade-helper/*/*/statistics_summary; echo '```'; } > ../pr-body.md
+          echo "Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> ../pr-body.md
+          git push -f origin HEAD:auh
+          gh pr create ${fails:+--draft} --base master --head auh \
+            --title "auto recipe upgrades for $(date -I)" \
+            --body-file ../pr-body.md
