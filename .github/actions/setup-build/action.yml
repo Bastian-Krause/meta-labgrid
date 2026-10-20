@@ -1,0 +1,34 @@
+name: Set up build
+description: Install host packages, clone bitbake/oe-core/meta-oe and initialize the build directory.
+runs:
+  using: composite
+  steps:
+    - name: Install required packages
+      shell: bash
+      run: sudo apt-get -q -y --no-install-recommends install diffstat chrpath
+    - name: Clone bitbake
+      shell: bash
+      run: git clone --shared --reference-if-able /srv/shared-git/bitbake.git -b master https://github.com/openembedded/bitbake.git
+    - name: Clone openembedded-core
+      shell: bash
+      run: git clone --shared --reference-if-able /srv/shared-git/openembedded-core.git -b master https://github.com/openembedded/openembedded-core.git
+    - name: Clone meta-openembedded
+      shell: bash
+      run: git clone --shared --reference-if-able /srv/shared-git/meta-openembedded.git -b master https://github.com/openembedded/meta-openembedded.git
+    - name: Initialize build directory
+      shell: bash
+      run: |
+        source openembedded-core/oe-init-build-env build
+        bitbake-layers add-layer ../meta-openembedded/meta-oe
+        bitbake-layers add-layer ../meta-openembedded/meta-python
+        bitbake-layers add-layer ../meta-labgrid
+        if [ -f ~/.yocto/auto.conf ]; then
+          cp ~/.yocto/auto.conf conf/
+        else
+          echo 'SSTATE_MIRRORS = "file://.* https://github-runner.pengutronix.de/sstate-cache/PATH"' >> conf/auto.conf
+          echo 'BB_SIGNATURE_HANDLER = "OEBasicHash"' >> conf/auto.conf
+          echo 'BB_HASHSERVE = ""' >> conf/auto.conf
+          echo 'OPKGBUILDCMD = "opkg-build -Z gzip -a -1n"' >> conf/auto.conf
+          echo 'INHERIT += "rm_work"' >> conf/auto.conf
+        fi
+        echo 'DISTRO_FEATURES:remove = "alsa bluetooth usbgadget usbhost wifi nfs zeroconf pci 3g nfc x11 opengl ptest wayland vulkan"' >> conf/local.conf
