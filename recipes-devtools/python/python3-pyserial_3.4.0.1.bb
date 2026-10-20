@@ -5,7 +5,7 @@ LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=d476d94926db6e0008a5b3860d1f5c0d"
 inherit pypi setuptools3
 
 PYPI_PACKAGE = "pyserial-labgrid"
-PYPI_PACKAGE_SDIST = "pyserial-labgrid"
+PYPI_PACKAGE_SDIST = "pyserial-labgrid-foo"
 
 SRC_URI[sha256sum] = "be4229a6b704dfd2b84362c3c10348578cc84b8e08556900aa7b3116ebf2f8c6"
 
